@@ -22,6 +22,7 @@ CLIENT_SECRET = ''
 HOST = 'gate.gigagenie.ai'
 PORT = 4080
 
+
 ### COMMON : Client Credentials ###
 def getMetadata():
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")[:-3]
@@ -35,8 +36,10 @@ def getMetadata():
 
     return metadata
 
+
 def credentials(context, callback):
     callback(getMetadata(), None)
+
 
 def getCredentials():
     with open('../data/ca-bundle.pem', 'rb') as f:
@@ -46,6 +49,7 @@ def getCredentials():
     authCred = grpc.metadata_call_credentials(credentials)
 
     return grpc.composite_channel_credentials(sslCred, authCred)
+
 
 ### END OF COMMON ###
 
@@ -59,9 +63,11 @@ CHANNELS = 1
 RATE = 16000
 CHUNK = 512
 
+
 # MicrophoneStream - original code in https://goo.gl/7Xy3TT
 class MicrophoneStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
+
     def __init__(self, rate, chunk):
         self._rate = rate
         self._chunk = chunk
@@ -121,17 +127,19 @@ class MicrophoneStream(object):
                     break
 
             yield b''.join(data)
+
+
 # [END audio_stream]
 
 def print_rms(rms):
     out = ''
-    for _ in range(int(round(rms/30))):
+    for _ in range(int(round(rms / 30))):
         out = out + '*'
 
-    print (out)
+    print(out)
+
 
 def generate_request():
-
     with MicrophoneStream(RATE, CHUNK) as stream:
         audio_generator = stream.generator()
 
@@ -140,23 +148,23 @@ def generate_request():
             message.audioContent = content
             yield message
 
-            rms = audioop.rms(content,2)
+            rms = audioop.rms(content, 2)
             print_rms(rms)
 
-def getVoice2Text():
 
-    print ("Ctrl+\ to quit ...")
+def getVoice2Text():
+    print("Ctrl+\ to quit ...")
 
     channel = grpc.secure_channel('{}:{}'.format(HOST, PORT), getCredentials())
     stub = gigagenieRPC_pb2_grpc.GigagenieStub(channel)
     request = generate_request()
     resultText = ''
     for response in stub.getVoice2Text(request):
-        if response.resultCd == 200: # partial
+        if response.resultCd == 200:  # partial
             print('resultCd=%d | recognizedText= %s'
                   % (response.resultCd, response.recognizedText))
             resultText = response.recognizedText
-        elif response.resultCd == 201: # final
+        elif response.resultCd == 201:  # final
             print('resultCd=%d | recognizedText= %s'
                   % (response.resultCd, response.recognizedText))
             resultText = response.recognizedText
@@ -166,45 +174,53 @@ def getVoice2Text():
                   % (response.resultCd, response.recognizedText))
             break
 
-    print ("TEXT: %s" % (resultText))
-    return resultText
+    print("TEXT: %s" % (resultText))
+
+    params = {"stt": resultText, "voice": request}
+    return params
+
 
 import wave
 
+
 def play_file(fname):
-	# create an audio object
-	wf = wave.open(fname, 'rb')
-	p = pyaudio.PyAudio()
-	chunk = 1024
+    # create an audio object
+    wf = wave.open(fname, 'rb')
+    p = pyaudio.PyAudio()
+    chunk = 1024
 
-	# open stream based on the wave object which has been input.
-	stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-					channels=wf.getnchannels(),
-					rate=wf.getframerate(),
-					output=True)
+    # open stream based on the wave object which has been input.
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
 
-	# read data (based on the chunk size)
-	data = wf.readframes(chunk)
+    # read data (based on the chunk size)
+    data = wf.readframes(chunk)
 
-	# play stream (looping from beginning of file to the end)
-	while (data != ''):
-		# writing to the stream is what *actually* plays the sound.
-		stream.write(data)
-		data = wf.readframes(chunk)
-		#print(data)
-		if data == b'':
-			break
-		# cleanup stuff.
-	print('End of audio stream')
-	stream.close()
-	p.terminate()
+    # play stream (looping from beginning of file to the end)
+    while (data != ''):
+        # writing to the stream is what *actually* plays the sound.
+        stream.write(data)
+        data = wf.readframes(chunk)
+        # print(data)
+        if data == b'':
+            break
+    # cleanup stuff.
+    print('End of audio stream')
+    stream.close()
+    p.terminate()
+
+
+from . import eva_api
 
 
 def main():
-
     # STT
     play_file("../data/sample_sound.wav")
-    text = getVoice2Text()
+    params = getVoice2Text()
+
+    cmd = eva_api.get_final_cmd(params["stt"], params["voice"])
 
 
 if __name__ == '__main__':

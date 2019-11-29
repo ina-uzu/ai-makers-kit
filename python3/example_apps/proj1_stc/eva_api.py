@@ -4,7 +4,7 @@ url = "http://15.164.50.174:5000/"
 
 
 def get_final_cmd(stt, voice):
-    params = {"stt": stt, "voice":voice}
+    params = {"stt": stt, "voice": voice}
     try:
         response = requests.post(url + "cmd", params=params)
 
