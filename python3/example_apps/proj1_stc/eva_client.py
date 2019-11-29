@@ -220,7 +220,7 @@ def main():
     play_file("../data/sample_sound.wav")
     params = getVoice2Text()
 
-    cmd = eva_api.get_final_cmd(params["stt"], params["voice"])
+    cmd = eva_api.get_final_cmd(params["stt"], params["voice"]).decode('utf-8', 'ignore')
 
 
 if __name__ == '__main__':

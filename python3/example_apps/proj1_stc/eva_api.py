@@ -1,11 +1,14 @@
-import requests
+# -*- coding:utf-8 -*-
+import json
 
-#url = "http://15.164.50.174:5000/"
+import requests
+import chardet
+
+# url = "http://15.164.50.174:5000/"
 url = "http://127.0.0.1:5000/"
 
 
 def get_final_cmd(stt, voice):
-
     params = {"stt": stt, "voice": voice}
 
     try:
@@ -36,8 +39,16 @@ def send_stt(stt):
 def main():
     stt = input("stt: ")
 
-    cmd = get_final_cmd(stt, "TEST")
-    print(cmd)
+    try:
+        resp = get_final_cmd(stt, "TEST")
+        cmd = json.loads(resp)
+
+        if "command" in cmd:
+            cmd = cmd["command"]
+            print(cmd)
+
+    except Exception as e:
+        print("ERROR! ", str(e))
 
 
 if __name__ == "__main__":
