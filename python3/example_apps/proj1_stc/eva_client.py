@@ -189,7 +189,7 @@ def play_file(fname):
     p = pyaudio.PyAudio()
     chunk = 1024
 
-    # open stream based on the wave object which has been input.
+    # open stream based on the wave object which has been input.ㄺ
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
