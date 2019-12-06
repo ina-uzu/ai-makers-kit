@@ -3,8 +3,8 @@ import json
 import array
 import requests
 
-#url = "http://54.180.120.132:5000/"
-url = "http://127.0.0.1:5000/"
+url = "http://163.239.28.22:5000/"
+#url = "http://127.0.0.1:5000/"
 
 
 def get_final_cmd(stt, voice):
@@ -70,7 +70,7 @@ def test():
 
         stt_data = stt.encode() + b'!'
         body = stt_data + body
-        response = requests.post(url + "cmd", data=body, headers={'Content-Type': 'application/octet-stream'})
+        response = requests.post(url + "cmd/", data=body, headers={'Content-Type': 'application/octet-stream'})
 
         print("url : ", url + "cmd")
         print("file len : ", len(body))
