@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
 import json
-
+import array
 import requests
-import chardet
 
-url = "http://54.180.120.132:5000/"
+url = "http://163.239.28.22:5000/"
 #url = "http://127.0.0.1:5000/"
 
 
@@ -38,30 +37,42 @@ def send_stt(stt):
         print("ERROR! ", str(e))
 
 
-import  wave
 def test():
-    #byte_array = array.array('B')
-    audio_file = wave.open("../data/sample_sound.wav", 'rb')
 
+    '''
+    audio_file = wave.open("../data/sample_sound.wav", 'rb')
     byt_depth = audio_file.getsampwidth()  # Byte depth of the file in BYTES
     frame_rate = audio_file.getframerate()
     buf_size = 512
-
+    
     print(byt_depth, frame_rate)
-
-    #byte_array.frombytes(audio_file.read())
+    
     bytes_data = audio_file.readframes(buf_size)
-    print(type(bytes_data))
     body = bytes_data
     audio_file.close()
+    
+    #audio_file = open("../data/sample_sound.wav",'rb')
+    audio_file = wave.open("../data/sample_sound.wav", 'rb')
+    euc_bytes = audio_file.readframes(1024)
+    byte_data = euc_bytes
 
-    stt = input("stt ")
+    #byte_data = audio_file.readlines()
+    print(type(byte_data), byte_data)
+    '''
+
+    byte_array = array.array('B')
+    audio_file = open("../data/sample_sound.wav", 'rb')
+    byte_array.frombytes(audio_file.read())
+    body = byte_array.tobytes()
+    stt = '카스'
 
     try:
-        data = {"stt":stt, "voice" : body}
-        response = requests.post(url + "device", data=data)
 
-        print("url : ", url + "device")
+        stt_data = stt.encode() + b'!'
+        body = stt_data + body
+        response = requests.post(url + "cmd/", data=body, headers={'Content-Type': 'application/octet-stream'})
+
+        print("url : ", url + "cmd")
         print("file len : ", len(body))
         print("status code :", response.status_code)
         return response.text
@@ -71,6 +82,7 @@ def test():
 
 
 def main():
+'''<<<<<<< HEAD
 #  test()
 
     stt = input("stt: ")
@@ -88,6 +100,11 @@ def main():
         print("ERROR! ", str(e))
 
 
+=======
+'''
+    resp = test()
+    cmd = json.loads(resp)
+    print(cmd)
 
 
 if __name__ == "__main__":
