@@ -13,11 +13,15 @@ import user_auth as UA
 import audioop
 import os
 from ctypes import *
+import array
 
 HOST = 'gate.gigagenie.ai'
 PORT = 4080
 RATE = 16000
 CHUNK = 512
+FILE_NAME = 'voice_stream'
+FINAL_FILE_NAME = 'file_voice_stream'
+
 
 ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
 def py_error_handler(filename, line, function, err, fmt):
@@ -27,14 +31,21 @@ asound = cdll.LoadLibrary('libasound.so')
 asound.snd_lib_error_set_handler(c_error_handler)
 
 def generate_request():
+    VOICE = 'test'
     with MS.MicrophoneStream(RATE, CHUNK) as stream:
         audio_generator = stream.generator()
-    
+        print(VOICE) 
         for content in audio_generator:
             message = gigagenieRPC_pb2.reqVoice()
             message.audioContent = content
             yield message
             
+            try:
+                print(len(content))
+            except Exception :
+                pass
+            
+            #VOICE = VOICE + content
             rms = audioop.rms(content,2)
             #print_rms(rms)
 
@@ -64,7 +75,22 @@ def getVoice2Text():
 
 def main():
     # STT
-    text = getVoice2Text()
+    stt = str(getVoice2Text())
+    voice_file = open( FILE_NAME, 'rb')
+
+    byte_array = array.array('B')
+    #byte_array.frombytes(voice_file.read())
+
+    data = byte_array.tobytes()
+
+    file = open(FINAL_FILE_NAME, 'wb')
+    data = stt.encode() + b'!' + voice_file.read()
+    
+    print(data[0:50])
+
+    file.write(data)
+    file.close()
+    voice_file.close()
 
 if __name__ == '__main__':
     main()

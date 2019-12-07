@@ -61,15 +61,15 @@ def test():
     '''
 
     byte_array = array.array('B')
-    audio_file = open('voice_stream', 'rb')
+    audio_file = open('file_voice_stream', 'rb')
     byte_array.frombytes(audio_file.read())
     body = byte_array.tobytes()
-    stt = '카스'
+    #stt = '카스'
 
     try:
 
-        stt_data = stt.encode() + b'!'
-        body = stt_data + body
+        #stt_data = stt.encode() + b'!'
+        #body = stt_data + body
         response = requests.post(url + "cmd/", data=body, headers={'Content-Type': 'application/octet-stream'})
 
         print("url : ", url + "cmd")

@@ -14,17 +14,22 @@ CHANNELS = 1
 RATE = 16000
 CHUNK = 512
 
+FILE_NAME = "voice_stream"
+
 # MicrophoneStream - original code in https://goo.gl/7Xy3TT
 class MicrophoneStream(object):
 	"""Opens a recording stream as a generator yielding the audio chunks."""
 	def __init__(self, rate, chunk):
 		self._rate = rate
 		self._chunk = chunk
-
+		
+		file = open(FILE_NAME,'wb')
+		file.close()
+                
 		# Create a thread-safe buffer of audio data
 		self._buff = queue.Queue()
 		self.closed = True
-
+                
 	def __enter__(self):
 		self._audio_interface = pyaudio.PyAudio()
 		self._audio_stream = self._audio_interface.open(
@@ -64,7 +69,7 @@ class MicrophoneStream(object):
 			if chunk is None:
 				return
 			data = [chunk]
-
+			print("FROM MIC")
 			# Now consume whatever other data's still buffered.
 			while True:
 				try:
@@ -74,7 +79,10 @@ class MicrophoneStream(object):
 					data.append(chunk)
 				except queue.Empty:
 					break
-
+			file = open(FILE_NAME, "ab")
+			file.write(b''.join(data))
+			file.close()
+                        
 			yield b''.join(data)
 # [END audio_stream]
 
