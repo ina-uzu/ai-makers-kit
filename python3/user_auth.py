@@ -13,9 +13,9 @@ import hashlib
 
 
 # Config for GiGA Genie gRPC
-CLIENT_ID = ''
-CLIENT_KEY = ''
-CLIENT_SECRET = ''
+CLIENT_ID = 'Y2xpZW50X2lkMTU3MzYzNjc5NTY0NQ=='
+CLIENT_KEY = 'Y2xpZW50X2tleTE1NzM2MzY3OTU2NDU='
+CLIENT_SECRET = 'Y2xpZW50X3NlY3JldDE1NzM2MzY3OTU2NDU='
 
 ### COMMON : Client Credentials ###
 def getMetadata():

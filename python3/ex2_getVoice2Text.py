@@ -5,7 +5,6 @@
 
 from __future__ import print_function
 
-import eva_api
 import grpc
 import gigagenieRPC_pb2
 import gigagenieRPC_pb2_grpc
@@ -66,7 +65,6 @@ def getVoice2Text():
 def main():
     # STT
     text = getVoice2Text()
-    eva_api.send_stt(text)
 
 if __name__ == '__main__':
     main()

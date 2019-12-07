@@ -15,10 +15,13 @@ import datetime
 import hmac
 import hashlib
 
+
 # Config for GiGA Genie gRPC
-CLIENT_ID = ''
-CLIENT_KEY = ''
-CLIENT_SECRET = ''
+CLIENT_ID = 'Y2xpZW50X2lkMTU3MzYzNjc5NTY0NQ=='
+CLIENT_KEY = 'Y2xpZW50X2tleTE1NzM2MzY3OTU2NDU='
+CLIENT_SECRET = 'Y2xpZW50X3NlY3JldDE1NzM2MzY3OTU2NDU='
+
+
 HOST = 'gate.gigagenie.ai'
 PORT = 4080
 
@@ -142,14 +145,14 @@ def print_rms(rms):
 def generate_request():
     with MicrophoneStream(RATE, CHUNK) as stream:
         audio_generator = stream.generator()
-
+        
         for content in audio_generator:
             message = gigagenieRPC_pb2.reqVoice()
             message.audioContent = content
             yield message
 
             rms = audioop.rms(content, 2)
-            print_rms(rms)
+            #print_rms(rms)
 
 
 def getVoice2Text():
@@ -175,8 +178,9 @@ def getVoice2Text():
             break
 
     print("TEXT: %s" % (resultText))
-
+    print("REQ " ,type(request))
     params = {"stt": resultText, "voice": request}
+    print(params)
     return params
 
 
@@ -189,15 +193,20 @@ def play_file(fname):
     p = pyaudio.PyAudio()
     chunk = 1024
 
+    print("Play File")
     # open stream based on the wave object which has been input.ㄺ
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
                     output=True)
-
+    print("Play File")
+   
     # read data (based on the chunk size)
     data = wf.readframes(chunk)
 
+
+    print("Play File")
+   
     # play stream (looping from beginning of file to the end)
     while (data != ''):
         # writing to the stream is what *actually* plays the sound.
@@ -206,22 +215,34 @@ def play_file(fname):
         # print(data)
         if data == b'':
             break
+    
+    
     # cleanup stuff.
     print('End of audio stream')
     stream.close()
     p.terminate()
 
 
-from . import eva_api
+import eva_api
 
 
 def main():
     # STT
     play_file("../data/sample_sound.wav")
-    params = getVoice2Text()
+    
+    try:
+            while True :
+                params = getVoice2Text()
+    
+   
+                cmd = eva_api.get_final_cmd(params["stt"], params["voice"])
+    
+                print("FIN")
+    except KeyboardInterrupt:
+        print("HOHOHO")
 
-    cmd = eva_api.get_final_cmd(params["stt"], params["voice"]).decode('utf-8', 'ignore')
 
-
+    
+    
 if __name__ == '__main__':
     main()

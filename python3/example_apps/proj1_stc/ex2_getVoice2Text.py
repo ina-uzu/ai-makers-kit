@@ -15,10 +15,12 @@ import datetime
 import hmac
 import hashlib
 
+
 # Config for GiGA Genie gRPC
-CLIENT_ID = ''
-CLIENT_KEY = ''
-CLIENT_SECRET = ''
+CLIENT_ID = 'Y2xpZW50X2lkMTU3MzYzNjc5NTY0NQ=='
+CLIENT_KEY = 'Y2xpZW50X2tleTE1NzM2MzY3OTU2NDU='
+CLIENT_SECRET = 'Y2xpZW50X3NlY3JldDE1NzM2MzY3OTU2NDU='
+
 HOST = 'gate.gigagenie.ai'
 PORT = 4080
 
@@ -58,9 +60,11 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 CHUNK = 512
+VOICE = b''
 
 # MicrophoneStream - original code in https://goo.gl/7Xy3TT
 class MicrophoneStream(object):
+    vocie = b''
     """Opens a recording stream as a generator yielding the audio chunks."""
     def __init__(self, rate, chunk):
         self._rate = rate
@@ -120,7 +124,9 @@ class MicrophoneStream(object):
                 except queue.Empty:
                     break
 
+            voice = b''.join(data)
             yield b''.join(data)
+
 # [END audio_stream]
 
 def print_rms(rms):
@@ -134,14 +140,14 @@ def generate_request():
 
     with MicrophoneStream(RATE, CHUNK) as stream:
         audio_generator = stream.generator()
-
+        VOICE = stream.voice
         for content in audio_generator:
             message = gigagenieRPC_pb2.reqVoice()
             message.audioContent = content
             yield message
 
             rms = audioop.rms(content,2)
-            print_rms(rms)
+            #print_rms(rms)
 
 def getVoice2Text():
 
@@ -167,6 +173,7 @@ def getVoice2Text():
             break
 
     print ("TEXT: %s" % (resultText))
+    print("VOICE ", VOICE)
     return resultText
 
 import wave
@@ -176,7 +183,7 @@ def play_file(fname):
 	wf = wave.open(fname, 'rb')
 	p = pyaudio.PyAudio()
 	chunk = 1024
-
+        
 	# open stream based on the wave object which has been input.
 	stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
 					channels=wf.getnchannels(),
@@ -204,8 +211,11 @@ def main():
 
     # STT
     play_file("../data/sample_sound.wav")
-    text = getVoice2Text()
-
+    try:
+            while True :
+                text = getVoice2Text()
+    except KeyboardInterrupt:
+        print("HOHOHO")
 
 if __name__ == '__main__':
     main()

@@ -4,18 +4,18 @@ import json
 import requests
 import chardet
 
-#url = "http://54.180.120.132:5000/"
-url = "http://127.0.0.1:5000/"
+url = "http://54.180.120.132:5000/"
+#url = "http://127.0.0.1:5000/"
 
 
 def get_final_cmd(stt, voice):
-    params = {"stt": stt, "voice": voice}
+    data = {"stt": stt, "voice": voice}
 
     try:
-        response = requests.post(url + "cmd", params=params)
+        response = requests.post(url + "cmd", data=data)
 
         print("url : ", url + "cmd")
-        print("params : ", params)
+        print("data : ", data)
         print("status code :", response.status_code)
         return response.text
 
@@ -71,8 +71,8 @@ def test():
 
 
 def main():
-    test()
-'''
+#  test()
+
     stt = input("stt: ")
 
     try:
@@ -86,9 +86,8 @@ def main():
 
     except Exception as e:
         print("ERROR! ", str(e))
-'''
 
-import array
+
 
 
 if __name__ == "__main__":
