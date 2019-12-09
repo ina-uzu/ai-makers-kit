@@ -61,15 +61,18 @@ def test():
     '''
 
     byte_array = array.array('B')
-    audio_file = open("../data/sample_sound.wav", 'rb')
+    audio_file = open("../data/minwoo.wav", 'rb')
     byte_array.frombytes(audio_file.read())
     body = byte_array.tobytes()
     stt = '카스'
+    print(type(stt))
 
     try:
 
         stt_data = stt.encode() + b'!'
         body = stt_data + body
+
+        print(body)
         response = requests.post(url + "cmd/", data=body, headers={'Content-Type': 'application/octet-stream'})
 
         print("url : ", url + "cmd")
@@ -82,26 +85,6 @@ def test():
 
 
 def main():
-'''<<<<<<< HEAD
-#  test()
-
-    stt = input("stt: ")
-
-    try:
-        resp = get_final_cmd(stt, "TEST")
-        cmd = json.loads(resp)
-        print(cmd)
-
-        if "command" in cmd:
-            cmd = cmd["command"]
-            print(cmd)
-
-    except Exception as e:
-        print("ERROR! ", str(e))
-
-
-=======
-'''
     resp = test()
     cmd = json.loads(resp)
     print(cmd)
