@@ -178,7 +178,8 @@ def getVoice2Text():
             break
 
     print("TEXT: %s" % (resultText))
-    print("REQ " ,type(request))
+
+
     params = {"stt": resultText, "voice": request}
     print(params)
     return params
@@ -224,7 +225,7 @@ def play_file(fname):
 
 
 import eva_api
-
+import tts_api
 
 def main():
     # STT
@@ -232,12 +233,13 @@ def main():
     
     try:
             while True :
+                
                 params = getVoice2Text()
-    
-   
+                tts_api.playVoiceStream(params["stt"])
                 cmd = eva_api.get_final_cmd(params["stt"], params["voice"])
     
                 print("FIN")
+                break
     except KeyboardInterrupt:
         print("HOHOHO")
 
